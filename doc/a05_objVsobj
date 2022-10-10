@@ -1,0 +1,84 @@
+# 객체와 객체 관계
+1. 실무의 예제
+웹에서 주로 사용되는 Object 관계 형태
+	1) 웹 MVC패턴
+		Controller(화면에서 요청값을 받는 객체)
+		
+			Service(핵심 모델데이터를 전달하는 객체)
+			
+			Dao(datavase를 처리하는 객체)
+			
+		View(jsp) ==> java ==> class ==> html
+		
+		ex)
+		class BoardConetroller{
+			// 필드로 외부 객체를 사용할 수 있게 선언.
+			BoardService service;
+					
+		}
+		class BoardService{
+		
+		}
+		class BoardDao{
+			// DB 처리 결과
+		}
+	2) 서버와 클라이언트 관계
+		요청 처리 : url
+		화면 호출 : url을 통해 출력할 화면
+		화면에 데이터 리스트 처리
+2. 객체와 객체 관계 내용 계열화
+	1) 같은 클래스 에서 만들어진 여러 객체에 대한 이해
+		- 선언
+		Person p1 = new Person();
+		Person p2 = new Person();
+		## 배열형 객체(크기변경 불가능)
+		Person arr[] = {new Person(), new Person(), new Person()};
+		
+		**중요**
+		## 동적배열형 객체
+		ArrayList<Person> plist = new ArrayList<Person>();
+		plist.add(new Person());
+		plist.add(new Person());
+		plist.add(new Person());
+		- 반복문을 통한 활용
+		for(int idx=0;idx<arr.length;idx++){
+			Person p01 = arr[idx];
+		}
+	2) 같은 클래스에서 나온 객체들 간에 공유 메모리 영역 static 활용
+		ex) 63빌딩의 도면의 가격은 앞으로 지어질 모든 63빌딩 건축비용에 동일하게 적용.
+		
+	3) 객체간의 접근제어자 설정 문제
+	
+		1:1관계 1:다관계에서 종속된 객체이지만 접근의 범위에 따라서 직접적인 접근을 하지 못하게 하는 설정 처리.
+		private, X(default), protected, public
+		cf) 집에 특정 리모콘/버튼을 통해서 채널 바꾸듯이 객체의 필드값이나 메서드는 적절한 접근 범위를 설정해 해당범위를 통해서만 
+			필드에 접근가능하게 처리함으로 프로그램의 안정화를 유지한다.	
+		# 접근 제어자에 대한 이해
+		- 패키지 개념 이해
+		- 접근제어자 처리 범위
+		- import 처리
+			외부 패키지 소속 객체 활용
+	4) 다른 클래스간에 선언되는 객체 설정.
+		class Product{
+		// 물건/가격/갯수
+		}
+		class Person{ // 1:1관계
+			HandPhone hp;
+		}
+		class Mart{ // 1:다관계
+			Product[] prd;
+			ArratKust<Product> plist;
+		}
+	===================== 여기까진 마스터	
+			
+	5) 상속
+		- 실제 클래스 vs 실제 클래스
+		- 추상 클래스 vs 실제 클래스	
+		- 인터페이스 vs 실제 클래스
+		- 오버라이딩(overriding) : 메서드 재정의 cf) 오버로딩(overloading) 메서드 중복 정의 차이
+		- 다형성(polymorphism) 
+			
+	6) 종합적인 객체와 객체의 활용 처리.
+			
+			
+			

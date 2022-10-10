@@ -1,0 +1,381 @@
+# java를 통한 데이터베이스 연동처리
+1. 지식계열화 순서
+	1) java에 대한 이해와 실습
+		클래스/객체 - 필드/생성자/메서드
+		메모리 로딩
+		예외 처리
+	2) sql에 대한 이해와 실습 : 서버의 자원(데이터)를 활용하기 위한 언어
+		select + dml
+	3) java 프로그램의 db 서버 연동 필요 환경 이해
+		- server, client 개념 이해
+			서버 : oracle database server (언제이고 접속하면 데이터를 전달가능 데몬로딩)
+			클라이언트 : java 클라이언트 프로그래밍, 웹 연동 프로그래밍
+		- jdbc 드라이버에 대한 이해
+			접속시 필요한 프로그래밍
+				- 공통 : jdbc드라이버(네트워크 통신 프로그램 socket)
+				- 개별 및 꼭 코드가 추가적으로필요로 하는 부분 : 개발자 코딩
+		- 필요 접속 정보 : ip, port, sid, 계정, 비밀번호
+			ip : 서버의 network 상 위치, domain 주소도 가능
+				localhost : 현재 pc 서버를 설치했기에 가능 
+			port : 하나의 서버에 여러가지 service를 지원할 때, 연결 port 구분하여 처리
+				ex) 오라클 서버, 웹서버(8080), 파일서버, 메일서버..
+				
+	4) 연동을 위한 핵심 객체와 순서에 대한 이해.(핸드폰으로 비유 기억)
+		-핵심 객체
+			연결객체 Connection : 접속 정보 + jdbc 드라이버
+			대화객체 Statement(sql)/PreparedStatement(sql) : - db서버에 이용하는 명령어
+				select * from emp; (서버로부터 결과를 가져오는 명려어)
+				insert into 테이블 values..(서버에 명령으로 등록)
+				update 수정, delete 삭제
+			결과객체 ResultSet(data) : 필요로 하는 정보(data) - select 구문
+				select 문을 수행한 경우만, 이 객체를 사용
+				1차적으로 ResultSet로 가져오고, 2차적으로 선언한 기본유형 데이터 타입이나, 문자열 데이터, VO객체로 입력처리 활용한다
+			자원해제 위에 나열된 DB 서버 접속과 대화 및 결과를 받는 객체들의 자원들 해제 (만들어진 객체의 역순위로 자원 해제) 
+				try{}catch, 각 객체의 메모리 자원을 해제
+		- 처리 순서
+			위 핵심 객체를 기준으로 DB처리
+			연결
+			대화
+			결과받기
+			자원해제
+			
+	5) DB 연동 처리 클래스 구조
+		- 필드 선언 : 핵심 객체들을 필드로 선언하여, 기능 메서드에서 필요로 할때, 사용할 수 있게 선언
+		- 연동 메서드 선언 : DB서버와 연동할 때, 사용
+		- 기능메서드 선언 : 공통 필드와 연동 매서드를 활용해서 sql에 따라서 기능처리를 하는 메서드
+	6) 기능 메서드 처리
+		- 연결 처리 공통 메서드 : 클래스를 선언해서 호출
+		- 조회 처리 메서드
+		- 등록 처리 메서드
+		- 수정 처리 메서드
+		- 삭제 처리 메서드
+	7) 다양한 sql을 통한 연습	
+2. DAO(Database Access Object) 처리 순서
+	1) main()가 있는 class 생성
+		-- test용
+		-- 외부에서 DAO 클래스 호출하여 객체로 생성하여 쓰는데, 그 전에 자체적으로 처리 확인
+	2) 공통 필드 선언
+	3) 공통 연결 기능 메서드 선언
+	4) 데이터 처리가 객체 형태인 경우 - 단위 VO 클래스 선언
+		Result Set ==> VO
+	5) 	기능메서드 선언
+		public 리턴유형 메서드명(매개변수){
+			리턴할 객체;
+			return 객체참조변수
+		}
+		sql작성 - sql에서 입력되는 내용과 결과데이터에 따라서 기능메서드의 매개변수, 리턴유형을 결정
+			select XXXXX => 리턴 유형 결정
+			from 테이블
+			where 컬럼 = 데이터 ==> 매개변수 결정;
+			insert, update, delete ==> 매개변수 결정
+		VO 작성 : 리턴 유형이 여러개의 속성으로 처리할 때, 필요 매개변수로 여러 속성이 필요할떄..	
+		
+		리턴값 선언
+			- 결과값이 있는 기능 메서드 : DB 서버로 부터 데이터를 가져오는 경우
+			- 결과값이 없는 기능 메서드 : DB 서버에 데이터를 입력/수정/삭제 처리하는 경우
+		메서드명 선언
+		매개변수 선언 : DB에 입력/수정/삭제 처리할 또는 where에 들어갈 데이터를 선언한다.
+			- 순서에 따른 프로세스 처리 
+		select 유형 ==> Resultset
+			pstmt.executQuery();
+			
+		DML(insert/update/delete) ==> con.setAutoCommit(false); con.commit(); con.rollback()
+			pstmt.excuteUpdate()	
+# 기능메서드 처리 순서
+1. 메서드 기본 형식 선언
+	1) 리턴값, 매개변수 결정
+		- 1단계로는 ResultSet 객체를 활용해서 System.out.prinln()
+		- 화면 UI의 종류에 따라서 가변적으로 처리가 가능하려면 VO객체를 리턴, 매개변수로 처리하여야한다.	
+		- 일반적으로 객체형식으로 만들어 처리한다.
+		
+	2) 리턴값과 매개변수가 VO클래스가 필요하면 VO클래스를 선언
+		사원정보 : ArrayList<Emp> 형태 리턴
+		조회 정보 : Emp sch를 매개변수로 선언
+		ex) public ArrayList<Emp> getEmpList<Emp sch){
+				ArrayList<Emp> list = new ArrayList<Emp>();
+				return list;
+			}
+			조회를 통해 처리되지 않으면 void
+			public void insertEmp(Emp insert){
+			}
+	3) 중괄호 블럭에 처리할 내용({})
+		- 공통 연결객체 처리할 내용 - DB 접속
+		- 계층형 연동 관계 이해
+			접속 ==> 접속한 객체로 대화 ==> 대화한 객체로 결과 처리 객체 ==> 결과 객체로 출력 및 VO객체 할당 
+			==> 결과객체 지원해제 ==> 대화객체 자원해제 ==> 접속객체 자원해제 			
+			ps) 접속객체가 setConn()공통 메서드를 통해서 메모리에 할당되면 접속객체 안에 있는 
+				기능메서드를 통해서 대화객체가 만들어진다.
+		- 접속 객체를 통한 대화 객체(Statement) 만들기.
+		- sql문을 대화객체를 통해서 처리하고 그 결과 객체(ResultSet) 가져오기
+		- 결과 객체(ResultSet)의 구조에 대한 이해
+			행/열로 된 테이블 형태의 객체이다.
+			.next()
+			.getString("컬럼명"), getInt(index번호)에 대한 이해
+			위 기능 메서드를 통해서 가져오는 데이터 확인
+			데이터 내용을 VO객체에 할당처리 ArrayList에 할당처리
+		- ResultSet과 반복문을 통한 처리
+		- 자원의 해제
+		- 예외 처리	
+# 조회 기능 메서드 정리
+1. 메서드 선언 : 리턴값, 매개변수
+2. 공통 연결 메서드 호출 : setConn();
+3. sql 문자열 선언 : String sql = "select * from emp";
+4. 대화객체 생성 : stmt = con.createStatement();
+5. 결과객체 생성 : rs = stmt.executeQuery(sql);
+6. while()문을 통해 결과객체 출력
+	while(r.next()){ // 행단위 호출
+		// 열단위 호출		select 컬럼명, 컬럼명2...from 테이블
+		// rs.get데이터유옇("컬럼명1");
+		rs.getInt("empno");
+	}
+7. 자원해제 : rs.close(); stmt.close(), con.close();
+8. try{}catch문 예외처리 추가
+	DB기본 예외 : SQLException
+	일반 예외 : Exception
+	기타 자원해제 : finally{}
+		if(rs!=null) rs.close();
+9. main()에서 기능 메서드 호출.				
+		
+# 기능메서드의 리턴값과 매개변수 처리
+1. 리턴값 처리
+	1) 단일데이터 : select count(*) cnt from emp
+		위 sql의 결과는 단일 데이터로 할당되는 데이터이기에
+		public int empCnt(){
+			int cnt = 0
+			if(rs.next())
+				cnet = rs.getInt("cnt");
+				
+			return cnt;
+		}
+	2) 하나 단일 Row데이터
+		select *
+		from emp
+		where empno = 7780; // key값이기에 행이 1row만 있는 여러 속성
+		- 속성을 VO클래스로 선언하고, 리턴 객체를 하나의 값으로 처리한다.
+		public Emp getEmp(int empno)
+			String sql = "select * from emp where empno = "+empno;
+			Emp emp = null;
+			if(rs.next()){			
+				rs.getEmpno(),rs.getEname(),rs.getJob()..);
+			}
+			return emp;	
+	3) 다중 row데이터(테이블형태)
+		select * from emp
+		
+		public ArrayList<Emp> getEmp(){
+			ArrayList<Emp> list = new ArrayList<Emp>();
+			while(rs.next()){
+				list.add(new Emp(rs.getEmpno(), rs.getEname()...));
+				
+			}
+			return list;
+		}				
+2. 매개변수 처리
+
+# 기능메서드 처리 핵심
+1. 공통내용은 에러가 났을때, 처리할수 있는 능력
+	- copy해서 사용
+2. 핵심코드
+	0) 메서드 선언 : return값, 매개변수값
+	1) sql 작성
+	2) while(rs.next()){
+			객체할당..
+			rs.getxxx()			
+ 		}
+ 
+# PreparedStatement 객체를 활용한 데이터 처리
+1. DB서버의 처리 구조
+	client sql을 전달 받은 ==> sql 명령어를 해석 ==> 기존에 실행했던 명령어 인지 여부 확인 ==> (sql 명령어를 해석 생략여부)
+	# 기존에 있는 명령어를 그대로 사용하는 경우 실행 속도/로딩 속도가 빠르게 처리된다.
+	
+2.WEB 프로그램에서 발생하는 SQL Injection이란
+	로그인 : [	]
+	패스워드 : [	]
+		[로그인]
+	String sql = "Select user from user_table WHERE id='"+id+"' AND password='"+pass+"'";
+	Select user from user_tabvle WHERE id='셰피로트' AND password='나무';
+	로그인 : [admin]
+	패스워드 : ['OR'1'='1]
+	'OR'1'='1
+	Select user from user_table WHERE id = 'admin' AND password='OR'1'='1;
+	String sql = "Select user from user_table WHERE id='"+id+"' AND password='"+pass+"'";
+	관리자의 비밀번호를 모르더라도 인증되어 버리는 현상이 발생한다.
+3. 매개변수값의 처리 방식
+	0) ? 로 데이터 mapping 처리하는 방식을 말한다.
+	
+	1) sql 선언 방식
+		String sql = "select * from emp where empno=? and job = ?";
+		위와 같이 ? 있는 sql을 해석과정을 거치게 된다.
+	2) sql 선언된 ?의 mapping 처리
+		psmt.setInt(1, empno);
+		psmt.setString(2, job);
+		상단에 문자열이 조합된 sql을 방지하고, 해당 컬럼과 해당 컬럼에 mapping될 데이터만 허용하기에 sql injection이 일어나지 않는다!
+		위에 PareparedStatement에서 처리하는 sql은 특정한 컬럼과 해당 유형(숫자, 문자열 등)에 맞는
+		데이터만 mapping하는 것을 허용한다.
+		 
+4. 여러가지 예제를 통한 처리하기
+	1) 필드 선언
+		Statement ==> PareparedStatement
+	2) 기능 메서드의 처리 차이
+		- 만들어지면서 sql을 할당처리.
+				stmt = con.createStatement();
+				rs = stmt.executeQuery(sql);
+			==>
+				pstmt = con.preparedStatement(sql);
+				rs = stmt.executeQuery();	
+		- ?가 들어갈 데이터를 mapping
+			pstmt.set데이터유형(순번, 데이터)
+		- 
+# return 객체 설정과 키워드 검색
+1. 데이터 처리 결과 객체의 활용
+	1) ResultSet과 while문에 의해 처리된 내용은 ArrayList형으로 처리하여야 여러가지 환경에 유연하게 처리를 할 수 있다.
+	2) 처리순서
+		- sql작성
+			ex) select * from emp where like '%'||'A'||'%'
+		- 작성된 sql내용을 단일 데이터/다중 데이터 판별
+			다중 : ArrayList<Emp>
+			단일 : Emp
+		- 단위 데이터를 할당할 VO 객체 선언
+			class Emp{
+				private int empno;
+				private String ename;
+				...
+				생성자
+				get/set() 선언
+			}	
+		- 단일 데이터 유형인 경우 - return 유형 단일 객체,
+			public Emp getEmp()
+		- 다중 데이터 유형인 경우 - return 유형 ArrayList<VO>
+			public ArraryList<Emp> getEmpList(){}
+		- while(), if() 중괄호 블럭 객체로 변경 처리
+			list.add(new Emp(rs.getInt("empno"), rs.getString("ename")....);
+		- main() 호출 및 테스트 확인.
+			ArrayList<Emp>list = dao.getEmpList("A");
+			for(Emp e:list){
+				System.out.print(e.getEmpno+"\t");
+			}	
+# Dao 처리 실제 순서
+1. 공통 소스
+	1) 공통 필드, 공통 연결 메서드
+	2) select, insert, update의 공통 코드
+	3) 예외 처리
+	# 복사해서 써도 되지만, 에러나는 상황에 대하여는 대처할 수 있어야 한다.
+	- 기본개념 이해, 에러나는 내용에 대해 사전에 정리.
+2. 기본 setting된 Dao를 복사해서 새로운 클래스를 만든다.
+3. 필요한 기능메서드 확인해서 필요없는 메서드는 삭제, 기능이 비슷한 메서드는 복사
+	반드시 메서드명이나 매개변수(overloading)를 변경하여야 에러를 막을 수 있다.
+4. 기본 sql을 확인한다.(sql편집기)
+5. 입력하여야할 데이터(매개변수)와 결과물로 받는 데이터형식을 확인한다.
+	입력값 : where 조건문, insert, update, delete에 활용
+		public void call(***입력값으로 전달할 데이터 변수 선언***)
+		1) 입력값이 없는 경우 : 매개변수 필요없음()
+		2) 매개변수가 한개인 경우 : 조건값이 1개 이거나 데이터 입력 수정 데이터가 한개인 경우
+			public void getEmp(int empno)
+				select *
+				from emp
+				where empno = ?
+				
+		3) 매개변수가 여러개인 경우
+			-2,3로 변수로 선언 가능
+				public ArrayList<Emp> empList(String ename, String job)
+				key 정보로 검색하는 데이터
+				select *
+				from emp
+				where empno = ? and job = ?
+			- 다수의 변수를 필요로 하는 경우
+			 class로 선언하여, 객첼 매개변수를 받게 처리한다.
+			 	public void insertEmp(Emp insert)
+			 	insert into emp values(?,?,?,?,?,?...)
+			 	pstmt.setInt(1.insert.getEmpno());	
+			 	pstmt.setString(2.insert.getEname());
+			 	pstmt.setString(3.insert.getJob());	
+			Map으로 선언하여, key/value형식으로 여러 데이터를 key으로 호출하여 등록 처리
+				public void insertEmp(Map<String, String> map)
+				
+	결과물 : select 구문을 통해서 나오는 데이터로
+			Resultset객체에서 추출하여 리턴할 데이터유형을 확인
+		public @@@ call(){ 타입별정
+			@@@ : 리턴할 객체/변수 선언.
+		
+			return@@@; 실제데이터
+		}				
+		1) 리턴값이 없는 경우 : void
+			insert, update, delete 구문
+				
+		2) 단일값(기본 primitive data 유형) 인 경우 : 단일 row, 단일col
+				select count(*)cnt from
+				select ename from
+				select max(sal) from
+			public int call(){
+				int cnt = 0;
+				
+				return cnt;
+			}
+					
+		3) 단일값(객체) : 단일 fow, 여러 col
+				key 정보로 검색하는 데이터
+				select *
+				from emp
+				where empno = 7780
+			조회된 값을 담을 class 선언, class를 리턴유형으로 선언.
+				public Emp getEmp(int empno){
+					Emp emp = null;
+					
+					
+					return emp;
+				}
+		4) 다중값(객체)	: 다중 row, 여러 col
+				select *
+				from emp
+				where ename like'%%'
+			조회된 값의 한개 row에 들어갈 class를 선언
+			public ArrayList<Emp> getEmpList(){
+				ArrayList<Emp> list = new ArrayList<Emp>();
+				
+				return list;
+			}				
+6. select 경우, ResultSet의 기능메서드를 정확하게 이해하여, 리턴하는 변수/객체에 연결한다.
+	1) VO 객체 만들 때, 주의 사항
+		- select에서 나온 결과명과 같은 이름으로 필드를 선언하는 것이 프로그래밍에 오류를 줄여준다.
+			private int no;
+		- default 생성자를 만들어 놓고..
+		- 생성자를 만들 떄, 전체 데이터를 가져오는 생성자를 만들고,
+		- 매개변수로 일부분 데이터를 전송할 때, 해당 필드만 선언되고 생성자를 만든다.
+	
+	리턴하는 변수/객체에 연결한다.		
+	ResultSet : select sql에 의한 결과와 동일 구조로 되어 있다.
+	select * from : 기본 컬럼명으로 가져온다.
+	select empno no, ename name from : 지정된 alias명으로 rs.getXXX("컬럼명") 지정하여야 한다.
+	public ArrayList<Emp>
+		ArrayList<Emp> list...
+		
+		while(rs.next()){ // 행단위 이동
+			// 데이터를 추가할 때, 생성자를 copy해놓고 보면 데이터에 맞게 등록하도록 한다.
+			Emp(int empno, String ename, String job, int mgr, Date hiredate, 
+				double sal, double comm, int deptno)
+			list.add(new Emp(
+							rs.getInt("empno"), // select에 있는 컬럼명과 동일하여야 한다.
+							rs.getString("ename"),
+							rs.getString("job"),
+							rs.getInt("mgr"),
+							rs.getDate("hiredate"),
+							rs.getDouble("sal"),
+							rs.getDouble("comm"),
+							rs.getInt("deptno")
+							
+							)
+						);
+		}					
+		
+7. 기타 코드 (자원해제/예외코드처리)는 select/inset,update,delete 구분하여 복사처리한다.
+
+# 등록/수정/삭제
+1. 기존 프로세스와 유사
+2. 추가 코드
+	1) con.setAutocommit(false)
+		자동 commit을 방지
+	2) ResultSet은 사용하지 않음
+	3) 완료시 comm.comit()처리
+	4) 예외 발생시, conn.rollback()	
+
+			

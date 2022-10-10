@@ -1,0 +1,39 @@
+# 데이터베이스 설치
+1. 설치파일 다운로드
+	최신 맥pc : 가상 서버를 만들어서 그쪽 접속(docker), vm
+2. setup 파일 실행
+	1) 관리자계정의 비밀번호 : 1111
+	
+3. cmd
+	squplus 통해서 설치 확인
+	system/1111
+	
+4. 기본 sample 계정 및 sample 데이터 만들기
+	scott.squl : oraclexe 경로에서 가져올 수 있다.
+	c:\oraclexe\app\oracle\product\11.2.0\server\rdbms\admin\scott.squl
+	사용자명 하위에 복사
+	
+5. scott.sql 편집 
+	scott/tiger	
+	tiger : 비밀번호 소문자로 변경
+	
+6. sqlplus 관리자 계정 접근
+	@scott.sql : 현재 폴드에 있는 scott.sql을 실행하라
+	계정 및 sample 파일 생성.
+	
+	conn scott/tiger;
+	select * form emp;
+	
+7. eclipse 플러그인 프로그램
+	dbeaver 설치
+	
+8. jdbc 드라이버 설정.
+	c:\oraclexe\app\oracle\product\11.2.0\server\jdbc\lib\ojdbc6
+	복사
+	
+9. 플러그인 프로그램으로 xe 서버 연동.
+
+
+# sql 편집기 저장시, 상단에 연결정보가 끊어질때
+1. 상단에 선택으로 연결을 해보고, 
+2. 저장시 마다 계속 끊어지면 새 sql 편집으로 만들고 기존 내용을 복사 한 후 기본 파일로 덮어쓰기를 하여 사용한다. 			
